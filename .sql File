@@ -1,0 +1,57 @@
+-- Create Authors Table
+CREATE TABLE Authors (
+    AuthorID INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each author
+    FirstName VARCHAR(100) NOT NULL,          -- First name of the author
+    LastName VARCHAR(100) NOT NULL,           -- Last name of the author
+    UNIQUE (FirstName, LastName)              -- Ensure no duplicate authors by name
+);
+
+-- Create Books Table
+CREATE TABLE Books (
+    BookID INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each book
+    Title VARCHAR(255) NOT NULL,              -- Title of the book
+    AuthorID INT NOT NULL,                    -- Foreign key linking to Authors table
+    Genre VARCHAR(100),                       -- Genre of the book
+    ISBN VARCHAR(20) UNIQUE,                  -- ISBN number for unique identification
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID) ON DELETE CASCADE  -- Author reference with cascading delete
+);
+
+-- Create Patrons Table
+CREATE TABLE Patrons (
+    PatronID INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each patron
+    FirstName VARCHAR(100) NOT NULL,          -- First name of the patron
+    LastName VARCHAR(100) NOT NULL,           -- Last name of the patron
+    Email VARCHAR(255) UNIQUE NOT NULL        -- Unique email address for each patron
+);
+
+-- Create Loans Table to track borrowed books
+CREATE TABLE Loans (
+    LoanID INT AUTO_INCREMENT PRIMARY KEY,    -- Unique identifier for each loan
+    BookID INT NOT NULL,                      -- Foreign key linking to Books table
+    PatronID INT NOT NULL,                    -- Foreign key linking to Patrons table
+    LoanDate DATE NOT NULL,                   -- Date when the book was borrowed
+    ReturnDate DATE,                          -- Date when the book is expected or returned
+    FOREIGN KEY (BookID) REFERENCES Books(BookID) ON DELETE CASCADE,  -- Book reference with cascading delete
+    FOREIGN KEY (PatronID) REFERENCES Patrons(PatronID) ON DELETE CASCADE, -- Patron reference with cascading delete
+    CONSTRAINT UC_Loan UNIQUE (BookID, PatronID, LoanDate)  -- Ensure a book is loaned only once per patron on the same day
+);
+
+-- Sample Data Insertion:
+
+-- Insert sample authors
+INSERT INTO Authors (FirstName, LastName) VALUES ('George', 'Orwell');
+INSERT INTO Authors (FirstName, LastName) VALUES ('J.K.', 'Rowling');
+INSERT INTO Authors (FirstName, LastName) VALUES ('J.R.R.', 'Tolkien');
+
+-- Insert sample books
+INSERT INTO Books (Title, AuthorID, Genre, ISBN) VALUES ('1984', 1, 'Dystopian', '9780451524935');
+INSERT INTO Books (Title, AuthorID, Genre, ISBN) VALUES ('Harry Potter and the Sorcerer\'s Stone', 2, 'Fantasy', '9780747532743');
+INSERT INTO Books (Title, AuthorID, Genre, ISBN) VALUES ('The Hobbit', 3, 'Fantasy', '9780345339683');
+
+-- Insert sample patrons
+INSERT INTO Patrons (FirstName, LastName, Email) VALUES ('Alice', 'Smith', 'alice.smith@example.com');
+INSERT INTO Patrons (FirstName, LastName, Email) VALUES ('Bob', 'Johnson', 'bob.johnson@example.com');
+
+-- Insert sample loans (book borrowings)
+INSERT INTO Loans (BookID, PatronID, LoanDate, ReturnDate) VALUES (1, 1, '2025-05-01', '2025-05-15');
+INSERT INTO Loans (BookID, PatronID, LoanDate, ReturnDate) VALUES (2, 2, '2025-05-03', '2025-05-17');
